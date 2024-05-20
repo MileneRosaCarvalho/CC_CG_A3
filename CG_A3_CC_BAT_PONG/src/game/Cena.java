@@ -18,7 +18,6 @@ public class Cena implements GLEventListener{
     private GLUT glut;
     private int toning = GL2.GL_SMOOTH;
     private float aspect;
-    
     private TextRenderer textRenderer;
     private Texture textureStart; 
     private Texture textureRules; 
@@ -27,7 +26,6 @@ public class Cena implements GLEventListener{
     private Texture textureYouWin; 
     private Texture texturePhase1; 
     private Texture texturePhase2; 
-    
     public int mode;
     private long time;
     public int screen = 0;
@@ -41,23 +39,11 @@ public class Cena implements GLEventListener{
     public int lifes = 5;
     public boolean pause = false;
     private boolean textoVisivel = true;
+    
     Textures textures = new Textures ();
     Primitives primitives = new Primitives ();
-
+       
     
-    
-    public void resetData() {
-        ballX = 0;
-        ballY = 1f;
-        directionY = 'd';
-        pause = false;
-        barMovement = 0;
-        screen = 0;
-        speed = 0.02f;
-        score = 0;
-        lifes = 5;
-    }
-
     @Override
     public void display(GLAutoDrawable drawable) {
         // Obtem o contexto Opengl
@@ -70,97 +56,90 @@ public class Cena implements GLEventListener{
 
         switch (screen) {
             case 0:
-                menu();
+                start();
                 break;
-
+                
             case 1:
-                fundoF1();
-                fase1();
-                if (score == 200){
+                backgroundPhase_01();
+                phase_01();
+                
+                if (score == 50){
                     screen = 2;
                 }
+                
                 if (lifes < 1){
                     screen = 3;
                 }
                 break;
 
             case 2:
-                fundoF2();
-                fase1();
-
+                backgroundPhase_02();
+                phase_01();
+   
                 gl.glPushMatrix();
-                primitives.obstaculo(gl);
+                primitives.obstacle(gl);
                 gl.glPopMatrix();
                 speed += 0.00001f;
-
+                
                 if (lifes < 1){
                     screen = 3;
                 }
-                if (score == 400)
+                
+                if (score == 100)
                 {
                     screen = 6;
                 }
                 break;
-
+            
             case 3:
-                gameOver();
+                GameOver();
                 break;
-
+                
             case 4:
-                fundoCJ();
+                backgroundRules();
                 break;
-
+                
             case 5:
-                fundoCred();
+                backgroundDevelopers();
                 break;
 
             case 6:
-                telaFim();
+                YouWin();
                 break;
 
             default:
-
                 break;
         }
-
         gl.glFlush();
     }
 
-    public void menu() {
-        fundoMenu();
+    public void start() {
+        backgroundStart();
         gl.glPushMatrix();
-        if(textoVisivel) {
-            desenhaTextoSuave(gl, 470, 50, Color.WHITE, "Aperte S para INICIAR!");
-        }
+        gl.glPopMatrix();
+        gl.glEnd();
+    }
+    
+    public void YouWin() {
+        backgroundYouWin();
+        gl.glPushMatrix();
+        desenhaTextoSuave(gl, 100, 670, Color.WHITE, "SCORE FINAL: " + score);
         gl.glPopMatrix();
         gl.glEnd();
     }
 
-    public boolean gameOver(){
+    public boolean GameOver(){
         if (lifes <= 0) {
-            fundoGo();
+            backgroundGameOver();
             gl.glPushMatrix();
-                desenhaTexto(gl, 480, 225, Color.WHITE, "Almas coletadas " + score);
+            desenhaTextoSuave(gl, 100, 670, Color.WHITE, "SCORE FINAL: " + score);
             gl.glPopMatrix();
             gl.glEnd();
         }
         return true;
     }
 
-    public void telaFim() {
-            fundoFim();
-            gl.glPushMatrix();
-            desenhaTexto(gl, 480, 225, Color.WHITE, "Almas coletadas " + score);
-            desenhaTextoSuave(gl, 450, 50, Color.WHITE, "Aperte 2 para continuar");
-            gl.glPopMatrix();
-            gl.glEnd();
-    }
-    
-//DESENHAR VIDAS
-
-    public void fase1() {
-
-
+    public void phase_01() {
         gl.glPushMatrix();
         primitives.criaRetangulo(barMovement, gl);
         gl.glPopMatrix();
@@ -174,48 +153,27 @@ public class Cena implements GLEventListener{
             bolaMove();
         }
         else {
-            desenhaTextoEspecifico(gl, 440, 500, Color.YELLOW, "PAUSED", 70);
-            //desenhaTexto(gl, 460, 350, Color.WHITE, "Aperte R para RECOMEÇAR");
-            //desenhaTexto(gl, 410, 300, Color.WHITE, "Aperte M para voltar ao MENU");
+            desenhaTextoEspecifico(gl, 480, 400, Color.WHITE, "PAUSED", 80);
         }
-
         
         gl.glPushMatrix();
-        //primitives.criaVida(gl, lifes);
-        
-                        for (int i = 1; i <= 5; i++) {		
-                        if (lifes >= i)
-				primitives.drawLives(gl, glut, 0.01f*i, true);
-			else
-				primitives.drawLives(gl, glut, 0.01f*i, false);
+        for (int i = 1; i <= 5; i++){		
+            if (lifes >= i)
+		primitives.drawLives(gl, glut, 0.01f*i, true);
+            else
+		primitives.drawLives(gl, glut, 0.01f*i, false);
 		} 
         gl.glPopMatrix();
         
-        desenhaTexto(gl, 100, 670, Color.WHITE, "SCORE " + score);
-        
-  
-    }
-
-    public void desenhaTexto(GL2 gl, int xPosicao, int yPosicao, Color cor, String frase){
-        gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
-        //Retorna a largura e altura da janela
-        textRenderer.beginRendering(Renderer.screenWidth, Renderer.screenHeight);
-        textRenderer.setColor(cor);
-        textRenderer.draw(frase, xPosicao, yPosicao);
-        textRenderer.endRendering();
-        gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, mode);
+        desenhaTexto(gl, 100, 670, Color.WHITE, "SCORE " + score); 
     }
 
 
-
-
-    public void fundoMenu() {
-
+    public void backgroundStart() {
         gl.glEnable(GL2.GL_TEXTURE_2D);
         textureStart.enable(gl);
         textureStart.bind(gl);
 
-        // Desenhar o objeto
         gl.glBegin(GL2.GL_QUADS);
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex2f(-1.0f, -1.0f);
@@ -230,18 +188,15 @@ public class Cena implements GLEventListener{
         gl.glVertex2f(-1.0f, 1.0f);
         gl.glEnd();
 
-        // Desativar a textura
         textureStart.disable(gl);
         gl.glDisable(GL2.GL_TEXTURE_2D);
     }
 
-    public void fundoCJ() {
-
+    public void backgroundRules() {
         gl.glEnable(GL2.GL_TEXTURE_2D);
         textureRules.enable(gl);
         textureRules.bind(gl);
 
-        // Desenhar o objeto
         gl.glBegin(GL2.GL_QUADS);
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex2f(-1.0f, -1.0f);
@@ -256,18 +211,15 @@ public class Cena implements GLEventListener{
         gl.glVertex2f(-1.0f, 1.0f);
         gl.glEnd();
 
-        // Desativar a textura
         textureRules.disable(gl);
         gl.glDisable(GL2.GL_TEXTURE_2D);
     }
 
-    public void fundoCred ()  {
-
+    public void backgroundDevelopers ()  {
         gl.glEnable(GL2.GL_TEXTURE_2D);
         textureDevelopers.enable(gl);
         textureDevelopers.bind(gl);
 
-        // Desenhar o objeto
         gl.glBegin(GL2.GL_QUADS);
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex2f(-1.0f, -1.0f);
@@ -282,18 +234,15 @@ public class Cena implements GLEventListener{
         gl.glVertex2f(-1.0f, 1.0f);
         gl.glEnd();
 
-        // Desativar a textura
         textureDevelopers.disable(gl);
         gl.glDisable(GL2.GL_TEXTURE_2D);
     }
 
-    public void fundoF1() {
-
+    public void backgroundPhase_01() {
         gl.glEnable(GL2.GL_TEXTURE_2D);
         texturePhase1.enable(gl);
         texturePhase1.bind(gl);
 
-        // Desenhar o objeto
         gl.glBegin(GL2.GL_QUADS);
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex2f(-1.0f, -1.0f);
@@ -308,18 +257,15 @@ public class Cena implements GLEventListener{
         gl.glVertex2f(-1.0f, 1.0f);
         gl.glEnd();
 
-        // Desativar a textura
         texturePhase1.disable(gl);
         gl.glDisable(GL2.GL_TEXTURE_2D);
     }
 
-    public void fundoF2() {
-
+    public void backgroundPhase_02() {
         gl.glEnable(GL2.GL_TEXTURE_2D);
         texturePhase2.enable(gl);
         texturePhase2.bind(gl);
 
-        // Desenhar o objeto
         gl.glBegin(GL2.GL_QUADS);
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex2f(-1.0f, -1.0f);
@@ -334,18 +280,15 @@ public class Cena implements GLEventListener{
         gl.glVertex2f(-1.0f, 1.0f);
         gl.glEnd();
 
-        // Desativar a textura
         texturePhase2.disable(gl);
         gl.glDisable(GL2.GL_TEXTURE_2D);
     }
 
-    public void fundoGo() {
-
+    public void backgroundGameOver() {
         gl.glEnable(GL2.GL_TEXTURE_2D);
         textureGameOver.enable(gl);
         textureGameOver.bind(gl);
 
-        // Desenhar o objeto
         gl.glBegin(GL2.GL_QUADS);
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex2f(-1.0f, -1.0f);
@@ -360,18 +303,15 @@ public class Cena implements GLEventListener{
         gl.glVertex2f(-1.0f, 1.0f);
         gl.glEnd();
 
-        // Desativar a textura
         textureGameOver.disable(gl);
         gl.glDisable(GL2.GL_TEXTURE_2D);
     }
 
-    public void fundoFim() {
-
+    public void backgroundYouWin() {
         gl.glEnable(GL2.GL_TEXTURE_2D);
         textureYouWin.enable(gl);
         textureYouWin.bind(gl);
 
-        // Desenhar o objeto
         gl.glBegin(GL2.GL_QUADS);
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex2f(-1.0f, -1.0f);
@@ -386,11 +326,12 @@ public class Cena implements GLEventListener{
         gl.glVertex2f(-1.0f, 1.0f);
         gl.glEnd();
 
-        // Desativar a textura
         textureYouWin.disable(gl);
         gl.glDisable(GL2.GL_TEXTURE_2D);
     }
 
+/*ENGENHARIA DO JOGO PONG*/  
+    
     public void randomBola() {
         double xRandom = -0.8f + Math.random() * 1.6f;
         if (xRandom > 0) {
@@ -491,6 +432,16 @@ public class Cena implements GLEventListener{
             toning = toning == GL2.GL_SMOOTH ? GL2.GL_FLAT : GL2.GL_SMOOTH;
         }
     }
+    
+    public void desenhaTexto(GL2 gl, int xPosicao, int yPosicao, Color cor, String frase){
+        gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
+        //Retorna a largura e altura da janela
+        textRenderer.beginRendering(Renderer.screenWidth, Renderer.screenHeight);
+        textRenderer.setColor(cor);
+        textRenderer.draw(frase, xPosicao, yPosicao);
+        textRenderer.endRendering();
+        gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, mode);
+    }
 
     private void desenhaTextoSuave(GL2 gl, int xPosicao, int yPosicao, Color cor, String frase) {
         long tempoAtual = System.currentTimeMillis();
@@ -504,6 +455,30 @@ public class Cena implements GLEventListener{
 
         gl.glColor4f(1f, 1f, 1f, 1f);
     }
+    
+        // Função para mudar tamanho de um TEXTO ESPECÍFICOS
+    public void desenhaTextoEspecifico(GL2 gl, int xPosicao, int yPosicao, Color cor, String frase, int tamanhoFonte) {
+        gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
+        TextRenderer textRendererEspecifico = new TextRenderer(new Font("OptimusPrinceps", Font.BOLD, tamanhoFonte));
+        textRendererEspecifico.beginRendering(Renderer.screenWidth, Renderer.screenHeight);
+        textRendererEspecifico.setColor(cor);
+        textRendererEspecifico.draw(frase, xPosicao, yPosicao);
+        textRendererEspecifico.endRendering();
+        gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, mode);
+    }
+    
+    public void resetData() {
+        ballX = 0;
+        ballY = 1f;
+        directionY = 'd';
+        pause = false;
+        barMovement = 0;
+        screen = 0;
+        speed = 0.02f;
+        score = 0;
+        lifes = 5;
+    }
+    
 
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width , int height) {
@@ -522,29 +497,14 @@ public class Cena implements GLEventListener{
         System.out.println("Reshape: " + width + ", " + height);
     }
 
-    // Função para mudar tamanho de um TEXTO ESPECÍFICOS
-    public void desenhaTextoEspecifico(GL2 gl, int xPosicao, int yPosicao, Color cor, String frase, int tamanhoFonte) {
-        gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
-        TextRenderer textRendererEspecifico = new TextRenderer(new Font("OptimusPrinceps", Font.BOLD, tamanhoFonte));
-        textRendererEspecifico.beginRendering(Renderer.screenWidth, Renderer.screenHeight);
-        textRendererEspecifico.setColor(cor);
-        textRendererEspecifico.draw(frase, xPosicao, yPosicao);
-        textRendererEspecifico.endRendering();
-        gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, mode);
-    }
-
     @Override
     public void init(GLAutoDrawable drawable) {
-        // Dados iniciais da cena
         gl = drawable.getGL().getGL2();
         glut = new GLUT();
-        textRenderer = new TextRenderer(new Font("Castellar", Font.BOLD,25));
-        randomBola();
-
-        // temporizador de texto
         time = System.currentTimeMillis();
+        textRenderer = new TextRenderer(new Font("BatmanForeverAlternate", Font.BOLD,25));
+        randomBola();
         
-        // Carrega a textura usando a classe Textura
         textureStart = Textures.loadTexture(gl, "src/images/start.PNG");
         textureRules = Textures.loadTexture(gl, "src/images/rules.PNG");
         textureDevelopers = Textures.loadTexture(gl, "src/images/developers.PNG");

@@ -109,7 +109,7 @@ public class Primitives {
                 return gl;
 	}
 
-    public GL2 obstaculo(GL2 gl) {
+    public GL2 obstacle(GL2 gl) {
         this.gl = gl;
         gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_LINE);  // Definir para desenhar apenas o contorno
 
