@@ -5,20 +5,13 @@ import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
 import java.io.File;
 import java.io.IOException;
+
 /**
  *
  * @author Milene Rosa Carvalho
  */
 public class Textures {
-        private GL2 gl;
-    	private Textures vetTextures[]; //novo
-	private float width;
-	private float height;
-	private int filtro;
-	private int modo;
-	private int wrap;
-	private boolean automatica;
-        
+
     public static Texture loadTexture(GL2 gl, String filePath) {
         try {
             // Carrega a textura a partir do arquivo
@@ -36,5 +29,5 @@ public class Textures {
             e.printStackTrace();
             return null;
         }
-    }  
+    }
 }

@@ -8,11 +8,13 @@ import com.jogamp.newt.event.KeyListener;
  * @author Milene Rosa Carvalho
  */
 public abstract class KeyBoard implements KeyListener {
-    private Cena cena;
-    public KeyBoard(Cena cena){
+
+    private final Cena cena;
+
+    public KeyBoard(Cena cena) {
         this.cena = cena;
     }
-    
+
     @Override
     public void keyPressed(KeyEvent e) {
         System.out.println("Key pressed: " + e.getKeyCode());
@@ -34,7 +36,7 @@ public abstract class KeyBoard implements KeyListener {
                 }
                 break;
 
-            case KeyEvent.VK_M:
+            case KeyEvent.VK_V:
                 if (cena.pause || cena.screen == 4 || cena.screen == 3 || cena.screen == 5) {
                     cena.resetData();
                     cena.screen = 0;
@@ -48,7 +50,7 @@ public abstract class KeyBoard implements KeyListener {
                 break;
 
             case KeyEvent.VK_R:
-                if (cena.screen !=0 && cena.screen != 4 && cena.screen != 5 && cena.screen != 6) {
+                if (cena.screen != 0 && cena.screen != 4 && cena.screen != 5 && cena.screen != 6) {
                     cena.resetData();
                     cena.screen = 1;
                 }
@@ -56,9 +58,9 @@ public abstract class KeyBoard implements KeyListener {
 
             case KeyEvent.VK_1:
                 if (cena.screen == 0) {
-                cena.screen = 4;
-            }
-            break;
+                    cena.screen = 4;
+                }
+                break;
 
             case KeyEvent.VK_2:
                 if (cena.screen == 0 || cena.screen == 6) {
@@ -66,13 +68,12 @@ public abstract class KeyBoard implements KeyListener {
                 }
 
             case KeyEvent.VK_P:
-                if (cena.screen !=4 && cena.screen !=0 ){
+                if (cena.screen != 4 && cena.screen != 0) {
                     cena.pause = !cena.pause;
                 }
         }
     }
 
-    // Método para limitar um valor dentro de um intervalo
     private float clamp(float valor, float minimo, float maximo) {
         return Math.max(minimo, Math.min(valor, maximo));
     }

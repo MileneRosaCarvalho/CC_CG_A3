@@ -1,4 +1,4 @@
-package game; 
+package game;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -13,19 +13,19 @@ import com.jogamp.opengl.util.texture.Texture;
  *
  * @author Milene Rosa Carvalho
  */
-public class Cena implements GLEventListener{
+public class Cena implements GLEventListener {
     private GL2 gl;
     private GLUT glut;
     private int toning = GL2.GL_SMOOTH;
     private float aspect;
     private TextRenderer textRenderer;
-    private Texture textureStart; 
-    private Texture textureRules; 
-    private Texture textureDevelopers; 
-    private Texture textureGameOver; 
-    private Texture textureYouWin; 
-    private Texture texturePhase1; 
-    private Texture texturePhase2; 
+    private Texture textureStart;
+    private Texture textureRules;
+    private Texture textureDevelopers;
+    private Texture textureGameOver;
+    private Texture textureYouWin;
+    private Texture texturePhase1;
+    private Texture texturePhase2;
     public int mode;
     private long time;
     public int screen = 0;
@@ -39,11 +39,10 @@ public class Cena implements GLEventListener{
     public int lifes = 5;
     public boolean pause = false;
     private boolean textoVisivel = true;
-    
-    Textures textures = new Textures ();
-    Primitives primitives = new Primitives ();
-       
-    
+
+    Textures textures = new Textures();
+    Primitives primitives = new Primitives();
+
     @Override
     public void display(GLAutoDrawable drawable) {
         // Obtem o contexto Opengl
@@ -58,16 +57,16 @@ public class Cena implements GLEventListener{
             case 0:
                 start();
                 break;
-                
+
             case 1:
                 backgroundPhase_01();
                 phase_01();
-                
-                if (score == 50){
+
+                if (score == 50) {
                     screen = 2;
                 }
-                
-                if (lifes < 1){
+
+                if (lifes < 1) {
                     screen = 3;
                 }
                 break;
@@ -75,30 +74,29 @@ public class Cena implements GLEventListener{
             case 2:
                 backgroundPhase_02();
                 phase_01();
-   
+
                 gl.glPushMatrix();
-                primitives.obstacle(gl);
+                primitives.drawObstacle(gl);
                 gl.glPopMatrix();
                 speed += 0.00001f;
-                
-                if (lifes < 1){
+
+                if (lifes < 1) {
                     screen = 3;
                 }
-                
-                if (score == 100)
-                {
+
+                if (score == 100) {
                     screen = 6;
                 }
                 break;
-            
+
             case 3:
                 GameOver();
                 break;
-                
+
             case 4:
                 backgroundRules();
                 break;
-                
+
             case 5:
                 backgroundDevelopers();
                 break;
@@ -119,20 +117,20 @@ public class Cena implements GLEventListener{
         gl.glPopMatrix();
         gl.glEnd();
     }
-    
+
     public void YouWin() {
         backgroundYouWin();
         gl.glPushMatrix();
-        desenhaTextoSuave(gl, 100, 670, Color.WHITE, "SCORE FINAL: " + score);
+        renderTextSoft(gl, 100, 670, Color.WHITE, "SCORE FINAL: " + score);
         gl.glPopMatrix();
         gl.glEnd();
     }
 
-    public boolean GameOver(){
+    public boolean GameOver() {
         if (lifes <= 0) {
             backgroundGameOver();
             gl.glPushMatrix();
-            desenhaTextoSuave(gl, 100, 670, Color.WHITE, "SCORE FINAL: " + score);
+            renderTextSoft(gl, 100, 670, Color.WHITE, "SCORE FINAL: " + score);
             gl.glPopMatrix();
             gl.glEnd();
         }
@@ -141,33 +139,32 @@ public class Cena implements GLEventListener{
 
     public void phase_01() {
         gl.glPushMatrix();
-        primitives.criaRetangulo(barMovement, gl);
+        primitives.drawBar(barMovement, gl);
         gl.glPopMatrix();
 
         gl.glPushMatrix();
         gl.glTranslatef(0, 0, 0);
-        primitives.criaBola(ballX, ballY, aspect, gl);
+        primitives.drawBall(ballX, ballY, aspect, gl);
         gl.glPopMatrix();
 
         if (!pause) {
-            bolaMove();
+            ballMechanism();
+        } else {
+            renderText_02(gl, 480, 400, Color.WHITE, "PAUSED", 80);
         }
-        else {
-            desenhaTextoEspecifico(gl, 480, 400, Color.WHITE, "PAUSED", 80);
-        }
-        
-        gl.glPushMatrix();
-        for (int i = 1; i <= 5; i++){		
-            if (lifes >= i)
-		primitives.drawLives(gl, glut, 0.01f*i, true);
-            else
-		primitives.drawLives(gl, glut, 0.01f*i, false);
-		} 
-        gl.glPopMatrix();
-        
-        desenhaTexto(gl, 100, 670, Color.WHITE, "SCORE " + score); 
-    }
 
+        gl.glPushMatrix();
+        for (int i = 1; i <= 5; i++) {
+            if (lifes >= i) {
+                primitives.drawLives(gl, glut, 0.08f * i, true);
+            } else {
+                primitives.drawLives(gl, glut, 0.08f * i, false);
+            }
+        }
+        gl.glPopMatrix();
+
+        renderText_01(gl, 40, 670, Color.WHITE, "SCORE " + score);
+    }
 
     public void backgroundStart() {
         gl.glEnable(GL2.GL_TEXTURE_2D);
@@ -215,7 +212,7 @@ public class Cena implements GLEventListener{
         gl.glDisable(GL2.GL_TEXTURE_2D);
     }
 
-    public void backgroundDevelopers ()  {
+    public void backgroundDevelopers() {
         gl.glEnable(GL2.GL_TEXTURE_2D);
         textureDevelopers.enable(gl);
         textureDevelopers.bind(gl);
@@ -330,143 +327,125 @@ public class Cena implements GLEventListener{
         gl.glDisable(GL2.GL_TEXTURE_2D);
     }
 
-/*ENGENHARIA DO JOGO PONG*/  
-    
-    public void randomBola() {
+    public void randomPositionBall() {
         double xRandom = -0.8f + Math.random() * 1.6f;
         if (xRandom > 0) {
             directionX = 'r';
-        }
-        else {
+        } else {
             directionX = 'l';
         }
 
         ballX = Float.valueOf(String.format(Locale.US, "%.2f", xRandom));
     }
 
-    public boolean colisaoBolaBarra(float xTranslatedBallFixed) {
+    public boolean collisionBallBar(float xTranslatedBallFixed) {
         float leftBarLimit = Float.valueOf(String.format(Locale.US, "%.1f", barMovement - 0.2f));
         float rightBarLimit = Float.valueOf(String.format(Locale.US, "%.1f", barMovement + 0.2f));
 
         if (leftBarLimit <= xTranslatedBallFixed && rightBarLimit >= xTranslatedBallFixed) {
             return true;
         }
-
         return false;
     }
 
-    public boolean colisaoBolaY(float xObj, float yObj, float bLimit, float tLimit, float xPoint) {
-        if (tLimit >= yObj && bLimit <= yObj && xObj == xPoint) {
+    public boolean collisionBallX(float xObj, float heightObj, float lLimit, float rLimit, float upperLimit) {
+        if (lLimit <= xObj && rLimit >= xObj && heightObj == upperLimit) {
             return true;
         }
-
         return false;
     }
 
-    public boolean colisaoBolaX(float xObj, float heightObj, float lLimit, float rLimit, float tLimit) {
-        if (lLimit <= xObj && rLimit >= xObj && heightObj == tLimit) {
+    public boolean collisionBallY(float xObj, float yObj, float inferiorLimit, float upperLimit, float xPoint) {
+        if (upperLimit >= yObj && inferiorLimit <= yObj && xObj == xPoint) {
             return true;
         }
-
         return false;
     }
 
-    public void bolaMove() {
+    public void ballMechanism() {
         float xTransBallFixed = Float.valueOf(String.format(Locale.US, "%.1f", ballX));
         float yTransBallFixed = Float.valueOf(String.format(Locale.US, "%.1f", ballY));
 
-        // Colisão com objeto da fase 2
+        // Colisão com o objeto da fase 2
         if (screen == 2 && directionX == 'l'
-                && colisaoBolaY(xTransBallFixed, yTransBallFixed, -0.1f, 0.5f, 0.2f)) {
+                && collisionBallY(xTransBallFixed, yTransBallFixed, -0.1f, 0.5f, 0.2f)) {
             directionX = 'r';
         }
         if (screen == 2 && directionX == 'r'
-                && colisaoBolaY(xTransBallFixed, yTransBallFixed, -0.1f, 0.5f, -0.2f)) {
+                && collisionBallY(xTransBallFixed, yTransBallFixed, -0.1f, 0.5f, -0.2f)) {
             directionX = 'l';
         }
-        // Colisão com a plataforma
+
+        // Colisão com a barra
         if (xTransBallFixed > -1f && directionX == 'l') {
-            ballX -= speed/2;
-        }
-        else if (xTransBallFixed == -1f && directionX == 'l') {
+            ballX -= speed / 2;
+        } else if (xTransBallFixed == -1f && directionX == 'l') {
             directionX = 'r';
-        }
-        else if (xTransBallFixed < 1f && directionX == 'r') {
-            ballX += speed/2;
-        }
-        else if (xTransBallFixed == 1f && directionX == 'r') {
+        } else if (xTransBallFixed < 1f && directionX == 'r') {
+            ballX += speed / 2;
+        } else if (xTransBallFixed == 1f && directionX == 'r') {
             directionX = 'l';
         }
 
         // Colisão com objeto da fase 2
         if (screen == 2 && directionY == 'u'
-                && colisaoBolaX(xTransBallFixed, yTransBallFixed, -0.2f, 0.2f, -0.2f)) {
+                && collisionBallX(xTransBallFixed, yTransBallFixed, -0.2f, 0.2f, -0.2f)) {
             directionY = 'd';
-        }
-        else if (screen == 2 && directionY == 'd'
-                && colisaoBolaX(xTransBallFixed, yTransBallFixed, -0.2f, 0.2f, 0.6f)) {
+        } else if (screen == 2 && directionY == 'd'
+                && collisionBallX(xTransBallFixed, yTransBallFixed, -0.2f, 0.2f, 0.6f)) {
             directionY = 'u';
         }
-        // Colisão com a plataforma
-        if (yTransBallFixed == -0.7f && directionY == 'd' && colisaoBolaBarra(xTransBallFixed)) {
+
+        // Colisão com a barra
+        if (yTransBallFixed == -0.7f && directionY == 'd' && collisionBallBar(xTransBallFixed)) {
             directionY = 'u';
             //lightOn = false;
             toning = toning == GL2.GL_SMOOTH ? GL2.GL_FLAT : GL2.GL_SMOOTH;
             score += 10;
-        }
-        else if (yTransBallFixed < 0.9f && directionY == 'u') {
+        } else if (yTransBallFixed < 0.9f && directionY == 'u') {
             ballY += speed;
-        }
-        else if (yTransBallFixed == 0.9f && directionY == 'u') {
+        } else if (yTransBallFixed == 0.9f && directionY == 'u') {
             directionY = 'd';
-        }
-        else if (yTransBallFixed < -1f) {
+        } else if (yTransBallFixed < -1f) {
             ballY = 1f;
             ballX = 0;
             lifes--;
-            randomBola();
-        }
-        else {
+            randomPositionBall();
+        } else {
             ballY -= speed;
-            //lightOn = true;
             toning = toning == GL2.GL_SMOOTH ? GL2.GL_FLAT : GL2.GL_SMOOTH;
         }
     }
-    
-    public void desenhaTexto(GL2 gl, int xPosicao, int yPosicao, Color cor, String frase){
+
+    public void renderText_01(GL2 gl, int xPosition, int yPosition, Color cor, String phrase) {
         gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
-        //Retorna a largura e altura da janela
         textRenderer.beginRendering(Renderer.screenWidth, Renderer.screenHeight);
         textRenderer.setColor(cor);
-        textRenderer.draw(frase, xPosicao, yPosicao);
+        textRenderer.draw(phrase, xPosition, yPosition);
         textRenderer.endRendering();
         gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, mode);
     }
 
-    private void desenhaTextoSuave(GL2 gl, int xPosicao, int yPosicao, Color cor, String frase) {
-        long tempoAtual = System.currentTimeMillis();
-        long tempoPassado = tempoAtual - time;
-
-        float alpha = (float) Math.abs(Math.sin(tempoPassado / 1300.0)); // Ajuste a frequência aqui
-
-        // Configura a cor com a intensidade alpha
-        cor = new Color(cor.getRed(), cor.getGreen(), cor.getBlue(), (int) (alpha * 255));
-        desenhaTexto(gl, xPosicao, yPosicao, cor, frase);
-
-        gl.glColor4f(1f, 1f, 1f, 1f);
-    }
-    
-        // Função para mudar tamanho de um TEXTO ESPECÍFICOS
-    public void desenhaTextoEspecifico(GL2 gl, int xPosicao, int yPosicao, Color cor, String frase, int tamanhoFonte) {
+    public void renderText_02(GL2 gl, int xPosition, int yPosition, Color cor, String phrase, int fontSize) {
         gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
-        TextRenderer textRendererEspecifico = new TextRenderer(new Font("OptimusPrinceps", Font.BOLD, tamanhoFonte));
+        TextRenderer textRendererEspecifico = new TextRenderer(new Font("BatmanForeverAlternate", Font.BOLD, fontSize));
         textRendererEspecifico.beginRendering(Renderer.screenWidth, Renderer.screenHeight);
         textRendererEspecifico.setColor(cor);
-        textRendererEspecifico.draw(frase, xPosicao, yPosicao);
+        textRendererEspecifico.draw(phrase, xPosition, yPosition);
         textRendererEspecifico.endRendering();
         gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, mode);
     }
-    
+
+    private void renderTextSoft(GL2 gl, int xPosition, int yPosition, Color cor, String phrase) {
+        long tempoAtual = System.currentTimeMillis();
+        long tempoPassado = tempoAtual - time;
+        float alpha = (float) Math.abs(Math.sin(tempoPassado / 1300.0));
+        cor = new Color(cor.getRed(), cor.getGreen(), cor.getBlue(), (int) (alpha * 255));
+        renderText_01(gl, xPosition, yPosition, cor, phrase);
+
+        gl.glColor4f(1f, 1f, 1f, 1f);
+    }
+
     public void resetData() {
         ballX = 0;
         ballY = 1f;
@@ -478,21 +457,22 @@ public class Cena implements GLEventListener{
         score = 0;
         lifes = 5;
     }
-    
 
     @Override
-    public void reshape(GLAutoDrawable drawable, int x, int y, int width , int height) {
-        //obtem o contexto grafico Opengl
+    public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
+        //Obtém o contexto gráfico OpenGL
         GL2 gl = drawable.getGL().getGL2();
-        //evita a divisão por zero
-        if(height == 0) height = 1;
-        //calcula a proporção da janela (aspect ratio) da nova janela
+        //Evita a divisão por zero
+        if (height == 0) {
+            height = 1;
+        }
+        //Calcula a proporção da janela (aspect ratio) da nova janela
         aspect = (float) width / height;
-        //seta o viewport para abranger a janela inteira
+        //Viewport para abranger a janela inteira
         gl.glOrtho(-1, 1, -1, 1, -1, 1);
-        //ativa a matriz de projeção
+        //Ativa a matriz de projeção
         gl.glMatrixMode(GL2.GL_PROJECTION);
-        gl.glLoadIdentity(); //lê a matriz identidade
+        gl.glLoadIdentity(); //Lê a matriz identidade
         gl.glMatrixMode(GL2.GL_MODELVIEW);
         System.out.println("Reshape: " + width + ", " + height);
     }
@@ -502,9 +482,9 @@ public class Cena implements GLEventListener{
         gl = drawable.getGL().getGL2();
         glut = new GLUT();
         time = System.currentTimeMillis();
-        textRenderer = new TextRenderer(new Font("BatmanForeverAlternate", Font.BOLD,25));
-        randomBola();
-        
+        textRenderer = new TextRenderer(new Font("BatmanForeverAlternate", Font.BOLD, 25));
+        randomPositionBall();
+
         textureStart = Textures.loadTexture(gl, "src/images/start.PNG");
         textureRules = Textures.loadTexture(gl, "src/images/rules.PNG");
         textureDevelopers = Textures.loadTexture(gl, "src/images/developers.PNG");
@@ -515,5 +495,6 @@ public class Cena implements GLEventListener{
     }
 
     @Override
-    public void dispose(GLAutoDrawable drawable) {}
+    public void dispose(GLAutoDrawable drawable) {
+    }
 }
