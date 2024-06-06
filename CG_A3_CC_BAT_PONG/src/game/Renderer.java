@@ -24,7 +24,10 @@ public class Renderer {
         window.setSize(screenWidth, screenHeight);
         window.setResizable(false);
 
-        Cena cena = new Cena();
+        //Cena cena = new Cena();
+        Cena cena = new Cena(screenWidth,screenHeight);
+        cena.height = screenHeight;
+        cena.widgth = screenWidth;
 
         window.addGLEventListener(cena);
 

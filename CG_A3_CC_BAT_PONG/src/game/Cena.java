@@ -39,9 +39,17 @@ public class Cena implements GLEventListener {
     public int lifes = 5;
     public boolean pause = false;
     private boolean textoVisivel = true;
+    public int height;
+    public int widgth;
 
     Textures textures = new Textures();
     Primitives primitives = new Primitives();
+    Text renderText  = new Text();  
+    
+    public Cena(int height, int widgth) {
+        this.height = height;
+        this.widgth = widgth;
+    }
 
     @Override
     public void display(GLAutoDrawable drawable) {
@@ -62,7 +70,7 @@ public class Cena implements GLEventListener {
                 backgroundPhase_01();
                 phase_01();
 
-                if (score == 50) {
+                if (score == 200) {
                     screen = 2;
                 }
 
@@ -84,7 +92,7 @@ public class Cena implements GLEventListener {
                     screen = 3;
                 }
 
-                if (score == 100) {
+                if (score == 250) {
                     screen = 6;
                 }
                 break;
@@ -121,7 +129,7 @@ public class Cena implements GLEventListener {
     public void YouWin() {
         backgroundYouWin();
         gl.glPushMatrix();
-        renderTextSoft(gl, 100, 670, Color.WHITE, "SCORE FINAL: " + score);
+        renderText.renderTextSoft(gl, 100, 670, Color.WHITE, "SCORE FINAL: " + score,widgth,height,time);
         gl.glPopMatrix();
         gl.glEnd();
     }
@@ -130,7 +138,7 @@ public class Cena implements GLEventListener {
         if (lifes <= 0) {
             backgroundGameOver();
             gl.glPushMatrix();
-            renderTextSoft(gl, 100, 670, Color.WHITE, "SCORE FINAL: " + score);
+            renderText.renderTextSoft(gl, 100, 670, Color.WHITE, "SCORE FINAL: " + score,widgth,height,time);
             gl.glPopMatrix();
             gl.glEnd();
         }
@@ -150,7 +158,7 @@ public class Cena implements GLEventListener {
         if (!pause) {
             ballMechanism();
         } else {
-            renderText_02(gl, 480, 400, Color.WHITE, "PAUSED", 80);
+            renderText.renderText(gl, 480, 400, Color.WHITE, "PAUSED", 80, widgth, height);
         }
 
         gl.glPushMatrix();
@@ -162,8 +170,7 @@ public class Cena implements GLEventListener {
             }
         }
         gl.glPopMatrix();
-
-        renderText_01(gl, 40, 670, Color.WHITE, "SCORE " + score);
+        renderText.renderText(gl, 40, 670, Color.WHITE, "SCORE: " + score,widgth,height);
     }
 
     public void backgroundStart() {
@@ -417,35 +424,6 @@ public class Cena implements GLEventListener {
         }
     }
 
-    public void renderText_01(GL2 gl, int xPosition, int yPosition, Color cor, String phrase) {
-        gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
-        textRenderer.beginRendering(Renderer.screenWidth, Renderer.screenHeight);
-        textRenderer.setColor(cor);
-        textRenderer.draw(phrase, xPosition, yPosition);
-        textRenderer.endRendering();
-        gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, mode);
-    }
-
-    public void renderText_02(GL2 gl, int xPosition, int yPosition, Color cor, String phrase, int fontSize) {
-        gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, GL2.GL_FILL);
-        TextRenderer textRendererEspecifico = new TextRenderer(new Font("BatmanForeverAlternate", Font.BOLD, fontSize));
-        textRendererEspecifico.beginRendering(Renderer.screenWidth, Renderer.screenHeight);
-        textRendererEspecifico.setColor(cor);
-        textRendererEspecifico.draw(phrase, xPosition, yPosition);
-        textRendererEspecifico.endRendering();
-        gl.glPolygonMode(GL2.GL_FRONT_AND_BACK, mode);
-    }
-
-    private void renderTextSoft(GL2 gl, int xPosition, int yPosition, Color cor, String phrase) {
-        long tempoAtual = System.currentTimeMillis();
-        long tempoPassado = tempoAtual - time;
-        float alpha = (float) Math.abs(Math.sin(tempoPassado / 1300.0));
-        cor = new Color(cor.getRed(), cor.getGreen(), cor.getBlue(), (int) (alpha * 255));
-        renderText_01(gl, xPosition, yPosition, cor, phrase);
-
-        gl.glColor4f(1f, 1f, 1f, 1f);
-    }
-
     public void resetData() {
         ballX = 0;
         ballY = 1f;
@@ -482,7 +460,7 @@ public class Cena implements GLEventListener {
         gl = drawable.getGL().getGL2();
         glut = new GLUT();
         time = System.currentTimeMillis();
-        textRenderer = new TextRenderer(new Font("BatmanForeverAlternate", Font.BOLD, 25));
+        //textRenderer = new TextRenderer(new Font("BatmanForeverAlternate", Font.BOLD, 25));
         randomPositionBall();
 
         textureStart = Textures.loadTexture(gl, "src/images/start.PNG");
@@ -493,7 +471,7 @@ public class Cena implements GLEventListener {
         texturePhase1 = Textures.loadTexture(gl, "src/images/phase1.PNG");
         texturePhase2 = Textures.loadTexture(gl, "src/images/phase2.PNG");
     }
-
+  
     @Override
     public void dispose(GLAutoDrawable drawable) {
     }
